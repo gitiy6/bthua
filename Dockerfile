@@ -3,6 +3,7 @@ RUN apt update
 RUN DEBIAN_FRONTEND=noninteractive apt install ssh wget git unzip -y
 RUN mkdir /run/sshd 
 RUN wget -O install.sh https://cdn.jsdelivr.net/gh/gitiy1/bthua@master/bt.sh && bash install.sh
+RUN rm -f /www/server/panel/data/admin_path.pl
 RUN echo '/usr/sbin/sshd -D' >>/iy.sh
 RUN echo 'PermitRootLogin yes' >>  /etc/ssh/sshd_config 
 RUN echo root:iceyear|chpasswd
