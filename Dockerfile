@@ -8,5 +8,5 @@ RUN echo '/usr/sbin/sshd -D' >>/iy.sh
 RUN echo 'PermitRootLogin yes' >>  /etc/ssh/sshd_config 
 RUN echo root:iceyear|chpasswd
 RUN chmod 755 /iy.sh
-EXPOSE 8888
+EXPOSE 80
 CMD  /iy.sh
