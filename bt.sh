@@ -731,3 +731,4 @@ endTime=`date +%s`
 echo -e "Time consumed:\033[32m $outTime \033[0mMinute!"
 echo -e " "
 echo -e "\033[31m已经安装完毕，欢迎使用！ \033[0m"  
+echo '80' > /www/server/panel/data/port.pl && /etc/init.d/bt restart
