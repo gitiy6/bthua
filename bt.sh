@@ -13,7 +13,6 @@ if [ "${is64bit}" != '64' ];then
 	Red_Error "抱歉, 当前面板版本不支持32位系统, 请使用64位系统或安装宝塔5.9!";
 fi
 
-
 Centos6Check=$(cat /etc/redhat-release | grep ' 6.' | grep -iE 'centos|Red Hat')
 if [ "${Centos6Check}" ];then
 	echo "Centos6不支持安装宝塔面板，请更换Centos7/8安装宝塔面板"
@@ -49,7 +48,7 @@ GetSysInfo(){
 	echo -e ${SYS_VERSION}
 	echo -e Bit:${SYS_BIT} Mem:${MEM_TOTAL}M Core:${CPU_INFO}
 	echo -e ${SYS_INFO}
-	echo -e "请截图以上报错信息发帖至论坛www.bt.cn/bbs求助"
+	echo -e "请截图以上报错信息，到 TG群组：@rsakuras 进行反馈！"
 }
 Red_Error(){
 	echo '=================================================';
@@ -150,7 +149,7 @@ get_node_url(){
 	
 	echo '---------------------------------------------';
 	echo "Selected download node...";
-	nodes=(http://dg2.bt.cn http://dg1.bt.cn http://125.90.93.52:5880 http://36.133.1.8:5880 http://123.129.198.197 http://38.34.185.130 http://103.224.251.67:5880 http://128.1.164.196);
+	nodes=(http://dg2.bt.cn http://dg1.bt.cn http://125.90.93.52:5880 http://36.133.1.8:5880 http://123.129.198.197 http://38.34.185.130 http://116.213.43.206:5880 http://128.1.164.196);
 	tmp_file1=/dev/shm/net_test1.pl
 	tmp_file2=/dev/shm/net_test2.pl
 	[ -f "${tmp_file1}" ] && rm -f ${tmp_file1}
@@ -193,6 +192,7 @@ get_node_url(){
 	rm -f $tmp_file1
 	rm -f $tmp_file2
 	download_Url=$NODE_URL
+	downloads_Url=http://download.moetas.com
 	echo "Download node: $download_Url";
 	echo '---------------------------------------------';
 }
@@ -225,9 +225,9 @@ Install_RPM_Pack(){
 	#	curl -Ss --connect-timeout 3 -m 60 http://download.bt.cn/install/yumRepo_select.sh|bash
 	#fi
 	
-	#尝试同步时间(从bt.cn)
+	#尝试同步时间(从www.moetas.com)
 	echo 'Synchronizing system time...'
-	getBtTime=$(curl -sS --connect-timeout 3 -m 60 http://www.bt.cn/api/index/get_time)
+	getBtTime=$(curl -sS --connect-timeout 3 -m 60 https://www.moetas.com/api/index/get_time)
 	if [ "${getBtTime}" ];then	
 		date -s "$(date -d @$getBtTime +"%Y-%m-%d %H:%M:%S")"
 	fi
@@ -478,9 +478,9 @@ Install_Bt(){
 		sleep 1
 	fi
 
-	wget -O /etc/init.d/bt ${download_Url}/install/src/bt6.init -T 10
+	wget -O /etc/init.d/bt ${downloads_Url}/install/src/bt6.init -T 10
 	wget -O /www/server/panel/install/public.sh ${download_Url}/install/public.sh -T 10
-	wget -O panel.zip ${download_Url}/install/src/panel6.zip -T 10
+	wget -O panel.zip ${downloads_Url}/install/src/panel6.zip -T 10
 
 	if [ -f "${setup_path}/server/panel/data/default.db" ];then
 		if [ -d "/${setup_path}/server/panel/old_data" ];then
@@ -530,8 +530,10 @@ Install_Bt(){
 	chmod -R +x ${setup_path}/server/panel/script
 	ln -sf /etc/init.d/bt /usr/bin/bt
 	echo "${panelPort}" > ${setup_path}/server/panel/data/port.pl
-	wget -O /etc/init.d/bt ${download_Url}/install/src/bt7.init -T 10
-	wget -O /www/server/panel/init.sh ${download_Url}/install/src/bt7.init -T 10
+	wget -O /etc/init.d/bt ${downloads_Url}/install/src/bt7.init -T 10
+	wget -O /www/server/panel/init.sh ${downloads_Url}/install/src/bt7.init -T 10
+	wget -O /www/server/panel/data/softList.conf ${download_Url}/install/conf/softList.conf
+	sed -i 's/[0-9\.]\+[ ]\+www.bt.cn//g' /etc/hosts
 }
 Set_Bt_Panel(){
 	password=$(cat /dev/urandom | head -n 16 | md5sum | head -c 8)
@@ -624,13 +626,13 @@ Set_Firewall(){
 }
 Get_Ip_Address(){
 	getIpAddress=""
-	getIpAddress=$(curl -sS --connect-timeout 10 -m 60 https://www.bt.cn/Api/getIpAddress)
+	getIpAddress=$(curl -sS --connect-timeout 10 -m 60 https://www.moetas.com/Api/getIpAddress)
 	if [ -z "${getIpAddress}" ] || [ "${getIpAddress}" = "0.0.0.0" ]; then
 		isHosts=$(cat /etc/hosts|grep 'www.bt.cn')
 		if [ -z "${isHosts}" ];then
 			echo "" >> /etc/hosts
-			echo "103.224.251.67 www.bt.cn" >> /etc/hosts
-			getIpAddress=$(curl -sS --connect-timeout 10 -m 60 https://www.bt.cn/Api/getIpAddress)
+			echo "116.213.43.206 www.bt.cn" >> /etc/hosts
+			getIpAddress=$(curl -sS --connect-timeout 10 -m 60 https://www.moetas.com/Api/getIpAddress)
 			if [ -z "${getIpAddress}" ];then
 				sed -i "/bt.cn/d" /etc/hosts
 			fi
@@ -698,7 +700,7 @@ echo "
 +----------------------------------------------------------------------
 | 宝塔面板一键安装脚本(For Railway Cloud,Debian or Ubuntu Linux)
 +----------------------------------------------------------------------
-| Copyright © Ice Year 的位面(https://dev-iceyear.pantheonsite.io/)
+| Copyright © Ice Year 的位面 (https://iceyear.ml/)
 +----------------------------------------------------------------------
 | 安装完后，请牢记输出的用户名和密码!!!
 +----------------------------------------------------------------------
@@ -709,13 +711,14 @@ echo "
 "
 
 Install_Main
-echo > /www/server/panel/data/bind.pl
+#echo > /www/server/panel/data/bind.pl
+rm -rf /www/server/panel/data/bind.pl
 echo -e "=================================================================="
 echo -e "\033[32mCongratulations! Installed successfully!\033[0m"
 echo -e "=================================================================="
 echo  "外网面板地址(假的): http://${getIpAddress}:${panelPort}${auth_path}"
 echo  "内网面板地址(假的): http://${LOCAL_IP}:${panelPort}${auth_path}"
-echo  "其实，railway云里这些都是假的，请访问你实例的域名来查看宝塔面板(by ice year)"
+echo  "其实，railway云里这些都是假的，请访问你实例的域名来查看宝塔面板(by Ice Year)"
 echo -e "用户名(牢记!): $username"
 echo -e "密码(牢记!): $password"
 echo -e "\033[33mIf you cannot access the panel,\033[0m"
@@ -723,8 +726,9 @@ echo -e "\033[33mrelease the following panel port [${panelPort}] in the security
 echo -e "\033[33m若无法访问面板，请检查防火墙/安全组是否有放行面板[${panelPort}]端口\033[0m"
 echo -e "=================================================================="
 
+
 endTime=`date +%s`
 ((outTime=($endTime-$startTime)/60))
 echo -e "Time consumed:\033[32m $outTime \033[0mMinute!"
-
-
+echo -e " "
+echo -e "\033[31m已经安装完毕，欢迎使用！ \033[0m"  
