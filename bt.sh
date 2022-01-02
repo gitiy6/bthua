@@ -192,7 +192,7 @@ get_node_url(){
 	rm -f $tmp_file1
 	rm -f $tmp_file2
 	download_Url=$NODE_URL
-	downloads_Url=http://download.moetas.com
+	downloads_Url=http://download.moetas.com/ltd
 	echo "Download node: $download_Url";
 	echo '---------------------------------------------';
 }
@@ -725,7 +725,6 @@ echo -e "\033[33mIf you cannot access the panel,\033[0m"
 echo -e "\033[33mrelease the following panel port [${panelPort}] in the security group\033[0m"
 echo -e "\033[33m若无法访问面板，请检查防火墙/安全组是否有放行面板[${panelPort}]端口\033[0m"
 echo -e "=================================================================="
-
 
 endTime=`date +%s`
 ((outTime=($endTime-$startTime)/60))
